@@ -115,6 +115,11 @@ export class LedgerSigner extends ethers.Signer {
         });
     }
 
+    async starkSign(path: string, hash: string): Promise<any> {
+      const sig = await this._retry((eth) => (eth as any).starkUnsafeSign(path, hash));
+      return sig
+    }
+
     connect(provider: ethers.providers.Provider): ethers.Signer {
         return new LedgerSigner(provider, this.type, this.path);
     }

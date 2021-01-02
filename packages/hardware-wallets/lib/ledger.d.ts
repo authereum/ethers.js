@@ -9,5 +9,6 @@ export declare class LedgerSigner extends ethers.Signer {
     getAddress(): Promise<string>;
     signMessage(message: ethers.utils.Bytes | string): Promise<string>;
     signTransaction(transaction: ethers.providers.TransactionRequest): Promise<string>;
+    starkSign(path: string, hash: string): Promise<any>;
     connect(provider: ethers.providers.Provider): ethers.Signer;
 }

@@ -203,6 +203,19 @@ var LedgerSigner = /** @class */ (function (_super) {
             });
         });
     };
+    LedgerSigner.prototype.starkSign = function (path, hash) {
+        return __awaiter(this, void 0, void 0, function () {
+            var sig;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this._retry(function (eth) { return eth.starkUnsafeSign(path, hash); })];
+                    case 1:
+                        sig = _a.sent();
+                        return [2 /*return*/, sig];
+                }
+            });
+        });
+    };
     LedgerSigner.prototype.connect = function (provider) {
         return new LedgerSigner(provider, this.type, this.path);
     };
