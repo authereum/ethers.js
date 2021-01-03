@@ -33,6 +33,10 @@ declare module "@ledgerhq/hw-transport-node-hid" {
     export function create(): Promise<Transport>;
 }
 
+declare module "@ledgerhq/hw-transport-webhid" {
+    export function create(): Promise<Transport>;
+}
+
 declare module "@ledgerhq/hw-transport-u2f" {
     export function create(): Promise<Transport>;
 }

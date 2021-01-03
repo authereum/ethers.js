@@ -10,6 +10,8 @@
     "@ledgerhq/hw-app-eth": "5.37.0",
     "@ledgerhq/hw-transport": "5.26.0",
     "@ledgerhq/hw-transport-u2f": "5.26.0",
+    "@ledgerhq/hw-transport-webhid": "5.36.0",
+    "@ledgerhq/hw-transport-node-hid": "5.26.0",
     "ethers": "^5.0.13"
   },
   "description": "Hardware Wallet support for ethers.",
@@ -32,9 +34,8 @@
   "license": "MIT",
   "main": "./lib/index.js",
   "module": "./lib.esm/index.js",
-  "name": "@ethersproject/hardware-wallets",
+  "name": "@authereum/ethersproject-hardware-wallets",
   "optionalDependencies": {
-    "@ledgerhq/hw-transport-node-hid": "5.26.0"
   },
   "publishConfig": {
     "access": "public"
@@ -50,5 +51,5 @@
   "sideEffects": false,
   "tarballHash": "0xa0aa3a1b351d2c457227777643bfc25e24e5ebb5f5d06f539bfd8326eb15a8f4",
   "types": "./lib/index.d.ts",
-  "version": "5.0.11"
+  "version": "5.0.11-beta.0"
 }

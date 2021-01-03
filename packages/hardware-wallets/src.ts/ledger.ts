@@ -22,22 +22,26 @@ function waiter(duration: number): Promise<void> {
 
 export class LedgerSigner extends ethers.Signer {
     readonly type: string;
-    readonly path: string
+    public path: string
 
     readonly _eth: Promise<Eth>;
 
-    constructor(provider?: ethers.providers.Provider, type?: string, path?: string) {
+    constructor(provider?: ethers.providers.Provider, type?: string, path?: string, ethApp?: Eth) {
         super();
         if (path == null) { path = defaultPath; }
         if (type == null) { type = "default"; }
 
-        ethers.utils.defineReadOnly(this, "path", path);
+        this.path = path
+        //ethers.utils.defineReadOnly(this, "path", path);
         ethers.utils.defineReadOnly(this, "type", type);
         ethers.utils.defineReadOnly(this, "provider", provider || null);
 
         const transport = transports[type];
         if (!transport) { logger.throwArgumentError("unknown or unsupported type", "type", type); }
 
+      if (ethApp) {
+        ethers.utils.defineReadOnly(this, "_eth", Promise.resolve(ethApp));
+      } else {
         ethers.utils.defineReadOnly(this, "_eth", transport.create().then((transport) => {
             const eth = new Eth(transport);
             return eth.getAppConfiguration().then((config) => {
@@ -48,6 +52,7 @@ export class LedgerSigner extends ethers.Signer {
         }, (error) => {
             return Promise.reject(error);
         }));
+      }
     }
 
     _retry<T = any>(callback: (eth: Eth) => Promise<T>, timeout?: number): Promise<T> {
@@ -73,6 +78,10 @@ export class LedgerSigner extends ethers.Signer {
 
             return reject(new Error("timeout"));
         });
+    }
+
+    setPath(path: string) {
+      this.path = path
     }
 
     async getAddress(): Promise<string> {
@@ -113,6 +122,11 @@ export class LedgerSigner extends ethers.Signer {
             r: ("0x" + sig.r),
             s: ("0x" + sig.s),
         });
+    }
+
+    async getStarkPublicKey(path: string):Promise<string> {
+      const addr = await this._retry((eth) => (eth as any).starkGetPublicKey(path, false));
+      return addr.toString('hex')
     }
 
     async starkSign(path: string, hash: string): Promise<any> {

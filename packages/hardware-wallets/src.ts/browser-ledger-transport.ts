@@ -1,12 +1,12 @@
 "use strict";
 
-import u2f from "@ledgerhq/hw-transport-u2f";
+import hid from "@ledgerhq/hw-transport-webhid";
 
 export type TransportCreator = {
     create: () => Promise<Transport>;
 };
 
 export const transports: { [ name: string ]: TransportCreator } = {
-    "u2f": u2f,
-    "default": u2f
+    "hid": hid,
+    "default": hid
 };

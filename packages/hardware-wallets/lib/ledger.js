@@ -68,7 +68,7 @@ function waiter(duration) {
 }
 var LedgerSigner = /** @class */ (function (_super) {
     __extends(LedgerSigner, _super);
-    function LedgerSigner(provider, type, path) {
+    function LedgerSigner(provider, type, path, ethApp) {
         var _this = _super.call(this) || this;
         if (path == null) {
             path = defaultPath;
@@ -76,23 +76,29 @@ var LedgerSigner = /** @class */ (function (_super) {
         if (type == null) {
             type = "default";
         }
-        ethers_1.ethers.utils.defineReadOnly(_this, "path", path);
+        _this.path = path;
+        //ethers.utils.defineReadOnly(this, "path", path);
         ethers_1.ethers.utils.defineReadOnly(_this, "type", type);
         ethers_1.ethers.utils.defineReadOnly(_this, "provider", provider || null);
         var transport = ledger_transport_1.transports[type];
         if (!transport) {
             logger.throwArgumentError("unknown or unsupported type", "type", type);
         }
-        ethers_1.ethers.utils.defineReadOnly(_this, "_eth", transport.create().then(function (transport) {
-            var eth = new hw_app_eth_1.default(transport);
-            return eth.getAppConfiguration().then(function (config) {
-                return eth;
+        if (ethApp) {
+            ethers_1.ethers.utils.defineReadOnly(_this, "_eth", Promise.resolve(ethApp));
+        }
+        else {
+            ethers_1.ethers.utils.defineReadOnly(_this, "_eth", transport.create().then(function (transport) {
+                var eth = new hw_app_eth_1.default(transport);
+                return eth.getAppConfiguration().then(function (config) {
+                    return eth;
+                }, function (error) {
+                    return Promise.reject(error);
+                });
             }, function (error) {
                 return Promise.reject(error);
-            });
-        }, function (error) {
-            return Promise.reject(error);
-        }));
+            }));
+        }
         return _this;
     }
     LedgerSigner.prototype._retry = function (callback, timeout) {
@@ -136,6 +142,9 @@ var LedgerSigner = /** @class */ (function (_super) {
                 }
             });
         }); });
+    };
+    LedgerSigner.prototype.setPath = function (path) {
+        this.path = path;
     };
     LedgerSigner.prototype.getAddress = function () {
         return __awaiter(this, void 0, void 0, function () {
@@ -199,6 +208,19 @@ var LedgerSigner = /** @class */ (function (_super) {
                                 r: ("0x" + sig.r),
                                 s: ("0x" + sig.s),
                             })];
+                }
+            });
+        });
+    };
+    LedgerSigner.prototype.getStarkPublicKey = function (path) {
+        return __awaiter(this, void 0, void 0, function () {
+            var addr;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this._retry(function (eth) { return eth.starkGetPublicKey(path, false); })];
+                    case 1:
+                        addr = _a.sent();
+                        return [2 /*return*/, addr.toString('hex')];
                 }
             });
         });

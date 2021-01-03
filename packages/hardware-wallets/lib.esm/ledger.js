@@ -23,7 +23,7 @@ function waiter(duration) {
     });
 }
 export class LedgerSigner extends ethers.Signer {
-    constructor(provider, type, path) {
+    constructor(provider, type, path, ethApp) {
         super();
         if (path == null) {
             path = defaultPath;
@@ -31,23 +31,29 @@ export class LedgerSigner extends ethers.Signer {
         if (type == null) {
             type = "default";
         }
-        ethers.utils.defineReadOnly(this, "path", path);
+        this.path = path;
+        //ethers.utils.defineReadOnly(this, "path", path);
         ethers.utils.defineReadOnly(this, "type", type);
         ethers.utils.defineReadOnly(this, "provider", provider || null);
         const transport = transports[type];
         if (!transport) {
             logger.throwArgumentError("unknown or unsupported type", "type", type);
         }
-        ethers.utils.defineReadOnly(this, "_eth", transport.create().then((transport) => {
-            const eth = new Eth(transport);
-            return eth.getAppConfiguration().then((config) => {
-                return eth;
+        if (ethApp) {
+            ethers.utils.defineReadOnly(this, "_eth", Promise.resolve(ethApp));
+        }
+        else {
+            ethers.utils.defineReadOnly(this, "_eth", transport.create().then((transport) => {
+                const eth = new Eth(transport);
+                return eth.getAppConfiguration().then((config) => {
+                    return eth;
+                }, (error) => {
+                    return Promise.reject(error);
+                });
             }, (error) => {
                 return Promise.reject(error);
-            });
-        }, (error) => {
-            return Promise.reject(error);
-        }));
+            }));
+        }
     }
     _retry(callback, timeout) {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
@@ -70,6 +76,9 @@ export class LedgerSigner extends ethers.Signer {
             }
             return reject(new Error("timeout"));
         }));
+    }
+    setPath(path) {
+        this.path = path;
     }
     getAddress() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -108,6 +117,18 @@ export class LedgerSigner extends ethers.Signer {
                 r: ("0x" + sig.r),
                 s: ("0x" + sig.s),
             });
+        });
+    }
+    getStarkPublicKey(path) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const addr = yield this._retry((eth) => eth.starkGetPublicKey(path, false));
+            return addr.toString('hex');
+        });
+    }
+    starkSign(path, hash) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const sig = yield this._retry((eth) => eth.starkUnsafeSign(path, hash));
+            return sig;
         });
     }
     connect(provider) {

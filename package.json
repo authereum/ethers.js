@@ -89,6 +89,7 @@
     "@ledgerhq/hw-app-eth": "5.37.0",
     "@ledgerhq/hw-transport": "5.26.0",
     "@ledgerhq/hw-transport-u2f": "5.26.0",
+    "@ledgerhq/hw-transport-webhid": "5.36.0",
     "@types/mocha": "^5.2.0",
     "aes-js": "3.0.0",
     "bech32": "1.1.4",

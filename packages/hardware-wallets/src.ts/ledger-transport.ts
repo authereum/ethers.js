@@ -4,7 +4,7 @@ export type TransportCreator = {
     create: () => Promise<Transport>;
 };
 
-let hidCache: Promise<typeof import("@ledgerhq/hw-transport-node-hid")> = null;
+let hidCache: Promise<any> = null;
 
 const hidWrapper = Object.freeze({
     create: function(): Promise<Transport> {
